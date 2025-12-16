@@ -16,15 +16,14 @@ jobs:
         with:
           node-version: 20
 
-      # 清理旧锁，安装新依赖 (解决了你 ReadableStream 的问题)
-      - name: Fresh Install
+      # 🔥 终极安装：彻底清除并用 --legacy-peer-deps 强制安装
+      - name: Fresh Install and Force Clean
         run: |
           rm -rf node_modules
           rm -f package-lock.json
-          npm install
+          npm install --legacy-peer-deps
 
-      # 🔥 最终关键：直接执行 JavaScript 文件！
-      # 不用 npm start，不走 npm start 弯路，直接让 Node 跑文件
+      # 运行指令改为：node claimer.js (因为文件确实在根目录)
       - name: Run Claimer
         env:
           EPIC_GAMES_DATA: ${{ secrets.EPIC_GAMES_DATA }}
