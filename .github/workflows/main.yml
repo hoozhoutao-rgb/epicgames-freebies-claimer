@@ -1,4 +1,4 @@
-Name: Daily Claim (Stable)
+name: Daily Claim
 
 on:
   workflow_dispatch:
@@ -6,29 +6,26 @@ on:
     - cron: "0 16 * * *"
 
 jobs:
-  run:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-      # 使用 Node 20 (解决 File 报错)
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      # 必须用 Node 20 (解决了你 File is not defined 的问题)
+      - uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      # 🔴 关键修改：不要用 npm ci，要用强制重装
-      - name: Install dependencies
+      # 清理旧锁，安装新依赖 (解决了你 ReadableStream 的问题)
+      - name: Fresh Install
         run: |
           rm -rf node_modules
           rm -f package-lock.json
           npm install
 
-      # 使用 npm start (解决找不到文件报错)
-      - name: Run daily task
+      # 🔥 最终关键：直接执行 JavaScript 文件！
+      # 不用 npm start，不走 npm start 弯路，直接让 Node 跑文件
+      - name: Run Claimer
         env:
           EPIC_GAMES_DATA: ${{ secrets.EPIC_GAMES_DATA }}
-          NODE_ENV: production
-        run: npm start
+        run: node claimer.js
