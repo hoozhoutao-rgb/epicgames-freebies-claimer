@@ -1,27 +1,27 @@
 name: Daily Claim
 
 on:
-  workflow_dispatch: # 允许手动点按钮运行
+  workflow_dispatch:
   schedule:
-    - cron: "0 16 * * *" # 每天自动跑
+    - cron: "0 16 * * *"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
-      # 使用 Node 16 (专门兼容老代码)
+
+      # 必须用 Node 20，才能解决 ReadableStream 和 File 报错
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20
 
-      # 强制安装，忽略所有报错
+      # 标准安装，不乱删东西
       - name: Install
-        run: npm install --legacy-peer-deps --ignore-scripts
+        run: npm install
 
-      # 启动脚本
+      # 使用官方启动命令 (之前报错是因为手动运行了 node claimer.js)
       - name: Run
         env:
           EPIC_GAMES_DATA: ${{ secrets.EPIC_GAMES_DATA }}
-        run: node claimer.js
+        run: npm start
