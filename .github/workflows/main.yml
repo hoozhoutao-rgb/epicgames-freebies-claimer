@@ -1,0 +1,27 @@
+name: Daily Claim
+
+on:
+  workflow_dispatch: # 允许手动点按钮运行
+  schedule:
+    - cron: "0 16 * * *" # 每天自动跑
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      # 使用 Node 16 (专门兼容老代码)
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # 强制安装，忽略所有报错
+      - name: Install
+        run: npm install --legacy-peer-deps --ignore-scripts
+
+      # 启动脚本
+      - name: Run
+        env:
+          EPIC_GAMES_DATA: ${{ secrets.EPIC_GAMES_DATA }}
+        run: node claimer.js
