@@ -11,20 +11,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # 使用 Node 18 (最稳定版本)
+      # 🔥 必须用 Node 20 (解决你刚才的 File 报错)
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
-      # 🔥 核心步骤：强制删除旧锁，安装全新依赖
-      # 这步能解决 ReferenceError: ReadableStream 等所有版本不兼容问题
-      - name: Fresh Install
+      # 清理旧垃圾，安装新依赖
+      - name: Install
         run: |
           rm -rf node_modules
           rm -f package-lock.json
           npm install
 
-      # 启动脚本
+      # 🔥 必须用 npm start (解决之前的找不到文件报错)
       - name: Run
         env:
           EPIC_GAMES_DATA: ${{ secrets.EPIC_GAMES_DATA }}
