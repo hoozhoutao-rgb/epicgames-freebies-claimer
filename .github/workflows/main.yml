@@ -11,20 +11,20 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # 🔥 必须用 Node 20 (解决你刚才的 File 报错)
+      # ✅ 关键点1：必须用 Node 20 (解决 File not defined 报错)
       - uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      # 清理旧垃圾，安装新依赖
-      - name: Install
+      # ✅ 关键点2：暴力清洗 + 重装 (解决 ReadableStream 报错)
+      - name: Fresh Install
         run: |
           rm -rf node_modules
           rm -f package-lock.json
           npm install
 
-      # 🔥 必须用 npm start (解决之前的找不到文件报错)
-      - name: Run
+      # ✅ 关键点3：必须用 npm start (解决找不到文件报错)
+      - name: Run Claimer
         env:
           EPIC_GAMES_DATA: ${{ secrets.EPIC_GAMES_DATA }}
         run: npm start
