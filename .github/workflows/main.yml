@@ -3,7 +3,6 @@ Name: Daily Claim (Stable)
 on:
   workflow_dispatch:
   schedule:
-    # 每天 UTC 16:00 运行
     - cron: "0 16 * * *"
 
 jobs:
@@ -11,25 +10,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ 拉取仓库代码
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ 设置 Node.js 20 (完美解决 File 报错)
+      # 使用 Node 20 (解决 File 报错)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          # 删掉 cache: "npm"，因为我们要重装，缓存反而可能坏事
 
-      # 3️⃣ 安装依赖 (关键修改！暴力清洗旧依赖，防止版本冲突)
+      # 🔴 关键修改：不要用 npm ci，要用强制重装
       - name: Install dependencies
         run: |
           rm -rf node_modules
           rm -f package-lock.json
           npm install
 
-      # 4️⃣ 运行脚本 (用 npm start 自动寻路，解决找不到文件报错)
+      # 使用 npm start (解决找不到文件报错)
       - name: Run daily task
         env:
           EPIC_GAMES_DATA: ${{ secrets.EPIC_GAMES_DATA }}
