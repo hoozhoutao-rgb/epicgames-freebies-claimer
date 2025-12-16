@@ -11,16 +11,20 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # 必须用 Node 20，才能解决 ReadableStream 和 File 报错
+      # 使用 Node 18 (最稳定版本)
       - uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: 18
 
-      # 标准安装，不乱删东西
-      - name: Install
-        run: npm install
+      # 🔥 核心步骤：强制删除旧锁，安装全新依赖
+      # 这步能解决 ReferenceError: ReadableStream 等所有版本不兼容问题
+      - name: Fresh Install
+        run: |
+          rm -rf node_modules
+          rm -f package-lock.json
+          npm install
 
-      # 使用官方启动命令 (之前报错是因为手动运行了 node claimer.js)
+      # 启动脚本
       - name: Run
         env:
           EPIC_GAMES_DATA: ${{ secrets.EPIC_GAMES_DATA }}
