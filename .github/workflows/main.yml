@@ -1,38 +1,31 @@
-name: Daily Claim
+- name: Install dependencies
+  run: |
+    rm -rf node_modules
+    rm -f package-lock.json
+    npm install --legacy-peer-deps
 
-on:
-  workflow_dispatch:
-  schedule:
-    - cron: "0 16 * * *"
+- name: Generate accounts.json
+  env:
+    EPIC_GAMES_DATA: ${{ secrets.EPIC_GAMES_DATA }}
+  run: |
+    cat > accounts.json << EOF
+    [
+      {
+        "cookie": "$EPIC_GAMES_DATA"
+      }
+    ]
+    EOF
 
-jobs:
-  run:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+- name: Generate minimal config.json   # 👈 就在这里
+  run: |
+    cat > config.json << EOF
+    {
+      "runOnStartup": true,
+      "once": true,
+      "headless": true,
+      "debug": false
+    }
+    EOF
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: |
-          rm -rf node_modules
-          rm -f package-lock.json
-          npm install --legacy-peer-deps
-
-      # ✅ 核心修正点：移除 EOF 的单引号，并使用正确的 Shell 变量引用
-      - name: Generate accounts.json
-        env:
-          EPIC_GAMES_DATA: ${{ secrets.EPIC_GAMES_DATA }}
-        run: |
-          cat > accounts.json << EOF
-          [
-            {
-              "cookie": "$EPIC_GAMES_DATA"
-            }
-          ]
-          EOF
-
-      - name: Run claimer
-        run: node claimer.js
+- name: Run claimer
+  run: node claimer.js
