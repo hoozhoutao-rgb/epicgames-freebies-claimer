@@ -8,7 +8,6 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -18,13 +17,20 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dependencies (Legacy Safe)
+      - name: Install dependencies (Force Clean)
         run: |
           rm -rf node_modules
           rm -f package-lock.json
           npm install --legacy-peer-deps
 
-      - name: Run claimer
+      # 🟢 关键：在运行前，强制生成一个最小化的 config.json
+      # 这样脚本内部执行 require('./config.json') 时就不会炸
+      - name: Inject Config
+        run: |
+          echo '{ "epic_games_data": "" }' > config.json
+          echo '[]' > accounts.json
+
+      - name: Run daily task
         env:
           EPIC_GAMES_DATA: ${{ secrets.EPIC_GAMES_DATA }}
-        run: npm start
+        run: node claimer.js
