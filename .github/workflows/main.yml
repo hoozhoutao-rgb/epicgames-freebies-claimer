@@ -1,31 +1,48 @@
-- name: Install dependencies
-  run: |
-    rm -rf node_modules
-    rm -f package-lock.json
-    npm install --legacy-peer-deps
+name: Daily Claim
 
-- name: Generate accounts.json
-  env:
-    EPIC_GAMES_DATA: ${{ secrets.EPIC_GAMES_DATA }}
-  run: |
-    cat > accounts.json << EOF
-    [
-      {
-        "cookie": "$EPIC_GAMES_DATA"
-      }
-    ]
-    EOF
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 16 * * *"
 
-- name: Generate minimal config.json   # 👈 就在这里
-  run: |
-    cat > config.json << EOF
-    {
-      "runOnStartup": true,
-      "once": true,
-      "headless": true,
-      "debug": false
-    }
-    EOF
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-- name: Run claimer
-  run: node claimer.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          rm -rf node_modules
+          rm -f package-lock.json
+          npm install --legacy-peer-deps
+
+      - name: Generate accounts.json
+        env:
+          EPIC_GAMES_DATA: ${{ secrets.EPIC_GAMES_DATA }}
+        run: |
+          cat > accounts.json << EOF
+          [
+            {
+              "cookie": "$EPIC_GAMES_DATA"
+            }
+          ]
+          EOF
+
+      - name: Generate minimal config.json
+        run: |
+          cat > config.json << EOF
+          {
+            "runOnStartup": true,
+            "once": true,
+            "headless": true,
+            "debug": false
+          }
+          EOF
+
+      - name: Run claimer
+        run: node claimer.js
