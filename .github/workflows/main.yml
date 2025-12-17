@@ -6,25 +6,25 @@ on:
     - cron: "0 16 * * *"
 
 jobs:
-  build:
+  run:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
 
-      # 必须用 Node 20 (解决了你 File is not defined 的问题)
-      - uses: actions/setup-node@v3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 🔥 终极安装：彻底清除并用 --legacy-peer-deps 强制安装
-      - name: Fresh Install and Force Clean
+      - name: Install dependencies (Legacy Safe)
         run: |
           rm -rf node_modules
           rm -f package-lock.json
           npm install --legacy-peer-deps
 
-      # 运行指令改为：node claimer.js (因为文件确实在根目录)
-      - name: Run Claimer
+      - name: Run claimer
         env:
           EPIC_GAMES_DATA: ${{ secrets.EPIC_GAMES_DATA }}
-        run: node claimer.js
+        run: npm start
